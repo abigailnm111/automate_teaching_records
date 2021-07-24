@@ -6,6 +6,9 @@ Created on Tue Jul 20 20:24:57 2021
 @author: panda
 """
 from docx import Document
+from docx.enum.section import WD_ORIENT
+from docx.shared import Inches
+
 import openpyxl
 import docx2txt
 
@@ -13,7 +16,7 @@ import re
 import os
 
 faculty_names= [***] 
-               
+                
 
 
             #Search column I for name to get row 
@@ -75,9 +78,9 @@ def get_quarters_years():
     return quarter_list
  
 def open_rundown_file(yq):
-    path="ENGL Evaluations/"+yq+" ENGL/Rundown Reports"
+    path="***"+yq+"***"
     location= os.path.abspath(path)
-    rundown_file=os.path.join(location, yq+"_ENGL_DeptRundown_Instructor_- A_Instruct_- B_TA_Eval.xlsx")
+    rundown_file=os.path.join(location, yq+"***")
     try:
         rundown_report= openpyxl.load_workbook(rundown_file)
     except:
@@ -87,10 +90,25 @@ def open_rundown_file(yq):
 
 def write_teaching_record(faculty):
      name=faculty.faculty
-     print(name)
-     doc= Document('Teaching Record Temp.docx')
-     doc= re.sub("<NAME>", name, doc)
-     doc.save(faculty.faculty+"Teaching Record.docx")
+     template=Document('Teaching Record.docx')
+     header_section=template.sections[-1]
+     #doc= Document('new temp.docx')
+     for paragraph in header_section.header.paragraphs:
+         new_paragraph= re.sub(r"<NAME>", name, paragraph.text)
+         paragraph.text=new_paragraph
+     score_table=template.tables[0]
+     i=0
+     for quarter in faculty.all_scores:
+            row_cells=score_table.rows[i].cells
+            row_cells[0].text=quarter
+            for course in faculty.all_scores[quarter]:
+                row_cells=score_table.rows[i].cells
+                row_cells[1].text=course[0]
+                i+=1
+                score_table.add_row()
+            i+=1
+            score_table.add_row()
+     template.save(faculty.faculty+"_Teaching Record.docx")
 
 def main():
     #template= docx2txt.process("Teaching Record Temp.docx")
@@ -100,25 +118,21 @@ def main():
     for name in faculty_names:
             faculty=evaluationScores(name)   
             all_fac.append(faculty)
-        
+    for name in all_fac:  
         #iterate through each quarter
-            for q in quarters:
-                #open rundown file per quarter
-                rundown=open_rundown_file(q)
-                if rundown!=None:
-                    #faculty.get_quarter_columns(rundown)
-                    for name in all_fac:
-                        
-                        name.save_scores(rundown,q)
-                    
-                        write_teaching_record(name)
+        for q in quarters:
+            #open rundown file per quarter
+            rundown=open_rundown_file(q)
+            if rundown!=None:
+                #faculty.get_quarter_columns(rundown)
                 
-            print( faculty.last_name, faculty.all_scores)
-#File Name variations            
-#19S_ENGL_DeptRundown - A_Instruct, B_TA_Eval.xlsx            
-#19F_ENGL_DeptRundown_Instructor_- A_Instruct_- B_TA_Eval.xlsx   
-#20W_ENGL_DeptRundown_Instructor_- A_Instruct_- B_TA_Eval.xlsx   
-#20S_ENGL_DeptRundown_Instructor_- A_Instruct_- B_TA_Eval.xlsx  
+                
+                name.save_scores(rundown,q)
+            
+        write_teaching_record(name)
+        
+        print( name.last_name, name.all_scores)
+
 main()
       
 
