@@ -53,9 +53,8 @@ def get_quarters_years():
     return quarter_list
  
 def open_rundown_file(yq):
-    path="ENGL Evaluations/"+yq+" ENGL/Rundown Reports"
-    location= os.path.abspath(path)
-    rundown_file=os.path.join(location, yq+file_name)
+    path=os.path.join("ENGL Evaluations", yq+" ENGL/Rundown Reports")
+    rundown_file=os.path.join(path, yq+file_name)
     try:
         rundown_report= openpyxl.load_workbook(rundown_file)
     except:
