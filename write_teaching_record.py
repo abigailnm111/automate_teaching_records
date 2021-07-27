@@ -21,18 +21,19 @@ class evaluationScores:
         
     def save_scores(self, rundown, q):
         self.courses=[]
-        for row in rundown["L"]:
+        name_column=get_quarter_columns(rundown,"Instructor Name")
+        for row in rundown[name_column]:
             upper_name=self.last_name.upper() 
             if upper_name in row.value:
-                r= row.row
-                self.course_id= rundown.cell(column=get_quarter_columns(rundown, "Subject Course Section"), row=r).value[:-6]
-                self.title= rundown.cell(column=get_quarter_columns(rundown, "Course Title"), row=r).value
-                self.enrollment= rundown.cell(column=get_quarter_columns(rundown, "Enrollment"), row=r).value
-                self.response= rundown.cell(column=get_quarter_columns(rundown, "Response Rate"), row=r).value
-                self.ins_avg= rundown.cell(column=get_quarter_columns(rundown, "Inst AVG"), row=r).value
-                self.crs_avg=rundown.cell(column=get_quarter_columns(rundown, "Crs AVG"), row=r).value
-                self.dept_ins_avg=rundown.cell(column=get_quarter_columns(rundown, "Dept Inst AVG"), row=r).value
-                self.dept_crs_avg=rundown.cell(column=get_quarter_columns(rundown, "Dept Crs AVG"), row=r).value
+                r= str(row.row)
+                self.course_id= rundown[get_quarter_columns(rundown, "Subject Course Section")+r].value[:-6]
+                self.title= rundown[get_quarter_columns(rundown, "Course Title")+r].value
+                self.enrollment= rundown[get_quarter_columns(rundown, "Enrollment")+r].value
+                self.response= rundown[get_quarter_columns(rundown, "Response Rate")+r].value
+                self.ins_avg= rundown[get_quarter_columns(rundown, "Inst AVG")+r].value
+                self.crs_avg=rundown[get_quarter_columns(rundown, "Crs AVG")+r].value
+                self.dept_ins_avg=rundown[get_quarter_columns(rundown, "Dept Inst AVG")+r].value
+                self.dept_crs_avg=rundown[get_quarter_columns(rundown, "Dept Crs AVG")+r].value
                 self.courses.append([self.course_id, self.title, self.enrollment, self.response, self.ins_avg, 
                                      self.crs_avg, self.dept_ins_avg, self.dept_crs_avg])
             self.all_scores[q]= self.courses
@@ -41,7 +42,7 @@ class evaluationScores:
 def get_quarter_columns(rundown, column_name):
         for column in rundown[1]:
             if re.search(column_name, column.value)!= None:
-                return column.column
+                return column.column_letter
             
 def get_quarters_years():
     years= ['19','20','21']
