@@ -18,12 +18,14 @@ class evaluationScores:
         self.all_scores={}
         self.name= faculty.split(',')
         self.last_name= self.name[0]
+        self.initial=self.name[1][1]
+        self.search_name=self.last_name+", "+self.initial
         
     def save_scores(self, rundown, q):
         self.courses=[]
         name_column=get_quarter_columns(rundown,"Instructor Name")
         for row in rundown[name_column]:
-            upper_name=self.last_name.upper() 
+            upper_name=self.search_name.upper() 
             if upper_name in row.value:
                 r= str(row.row)
                 self.course_id= rundown[get_quarter_columns(rundown, "Subject Course Section")+r].value[:-6]
@@ -56,12 +58,12 @@ def get_quarters_years():
 def open_rundown_file(yq):
     path=os.path.join("ENGL Evaluations", yq+" ENGL/Rundown Reports")
     rundown_file=os.path.join(path, yq+file_name)
-    try:
+    if os.path.isfile(rundown_file)== True:
         rundown_report= openpyxl.load_workbook(rundown_file)
-    except:
+        rundown= rundown_report.worksheets[0]
+        return rundown
+    else:
         return None
-    rundown= rundown_report.worksheets[0]
-    return rundown
 
 def write_teaching_record(faculty):
      name=faculty.faculty
@@ -84,8 +86,8 @@ def write_teaching_record(faculty):
                 row_cells[6].text= "{:.2f}".format(course[4]) #inst avg
                 row_cells[7].text= "{:.2f}".format(course[5]) #crs avg
                 row_cells[8].text= "{:.2f}%".format(course[3]*100) # response rate
-                row_cells[9].text= "{:.2f}".format(course[6])
-                row_cells[10].text= "{:.2f}".format(course[7])
+                row_cells[9].text= "{:.2f}".format(course[6])# dept inst av
+                row_cells[10].text= "{:.2f}".format(course[7])# dept crs avg
                 i+=1
                 score_table.add_row()
             if faculty.all_scores[quarter]==[]:
