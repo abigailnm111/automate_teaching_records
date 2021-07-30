@@ -23,6 +23,8 @@ class evaluationScores:
         self.courses=[]
         name_column=get_quarter_columns(rundown,"Instructor Name")
         upper_name=self.search_name.upper() 
+        self.dept_ins_avg=rundown[get_quarter_columns(rundown, "Dept Inst AVG")+"2"].value
+        self.dept_crs_avg=rundown[get_quarter_columns(rundown, "Dept Crs AVG")+"2"].value
         for row in rundown[name_column]:
             r= str(row.row)
             if upper_name in row.value:
@@ -32,8 +34,6 @@ class evaluationScores:
                 self.response= rundown[get_quarter_columns(rundown, "Response Rate")+r].value
                 self.ins_avg= rundown[get_quarter_columns(rundown, "Inst AVG")+r].value
                 self.crs_avg=rundown[get_quarter_columns(rundown, "Crs AVG")+r].value
-                self.dept_ins_avg=rundown[get_quarter_columns(rundown, "Dept Inst AVG")+r].value
-                self.dept_crs_avg=rundown[get_quarter_columns(rundown, "Dept Crs AVG")+r].value
                 self.courses.append([self.course_id, self.title, self.enrollment, self.response, self.ins_avg, 
                                      self.crs_avg, self.dept_ins_avg, self.dept_crs_avg])
             self.all_scores[q]= self.courses
@@ -75,9 +75,6 @@ def write_teaching_record(faculty):
      score_table=template.tables[0]
      cell=score_table.cell(0,7)
      xml=cell._tc.xml
-     
-     
-
      i=0
      for quarter in faculty.all_scores:
             row_cells=score_table.rows[i].cells
@@ -90,12 +87,11 @@ def write_teaching_record(faculty):
                 row_cells[4].text= str(course[2]) #enrollment
                 row_cells[6].text= "{:.2f}".format(course[4]) #inst avg
                 row_cells[7].text= "{:.2f}".format(course[5]) #crs avg
-                row_cells[8].text= "{:.2f}%".format(course[3]*100) # response rate
+                row_cells[8].text= "{:.2%}".format(course[3]) # response rate
                 row_cells[9].text= "{:.2f}".format(course[6])# dept inst av
                 row_cells[10].text= "{:.2f}".format(course[7])# dept crs avg
                 i+=1
                 score_table.add_row()
-                
             if faculty.all_scores[quarter]==[]:
                 i+=1
                 score_table.add_row()
